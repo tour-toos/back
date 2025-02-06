@@ -1,0 +1,15 @@
+[package]
+name = "tour-toss"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+chrono = "0.4.39"
+faker_rand = "0.1.1"
+futures = "0.3.31"
+rand = "0.8.5"
+sea-orm = { version = "=1.1.4", features = [ "sqlx-sqlite", "macros", "with-uuid", "runtime-tokio-native-tls"] }
+# snafu = "0.8.5"
+tokio = {version="1.43.0", features = ["macros", "rt-multi-thread"]}
+uuid = "1.13.1"
+clap = { version = "=4.5.4", features = ["derive"] }
