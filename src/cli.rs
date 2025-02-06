@@ -1,36 +1,40 @@
 use std::net::SocketAddr;
 
-
-
 #[derive(clap::Parser)]
 pub struct Cli {
-
     /// Database url 'sqlite:path/to/database'
-    /// 
+    ///
     /// Modes:
-    /// 
-    ///     1. SQLite with file: 
+    ///
+    ///     1. SQLite with file:
     ///         * '?mode=rwc' - сreate file if not exists;
     ///         * '?mode=ro'  - read only.
-    /// 
+    ///
     ///     2. SQLite in memory: 'sqlite::memory:'
-    /// 
-    #[clap(long, default_value="sqlite:/database?mode=rwc")]
+    ///
+    #[clap(long, default_value = "sqlite:/database?mode=rwc")]
     pub database: String,
 
-    /// 
+    #[clap(long, default_value = "info")]
+    pub log_lvl: LogLevel,
+
     #[clap(subcommand)]
-    pub mode: Option<Mode>
+    pub mode: Option<Mode>,
 }
 
+#[derive(clap::ValueEnum, Clone, Debug)]
+pub enum LogLevel {
+    Info,
+    Debug,
+    Trace
+}
 
 #[derive(clap::Subcommand)]
 pub enum Mode {
     Operate {
         #[clap(subcommand)]
-        command: Option<Operate>
+        command: Option<Operate>,
     },
-    
 }
 
 #[derive(clap::Subcommand)]
@@ -44,5 +48,5 @@ pub enum Operate {
     Api {
         #[clap(default_value = "127.0.0.1:30100")]
         addr: SocketAddr,
-    }
+    },
 }

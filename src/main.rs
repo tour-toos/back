@@ -1,6 +1,7 @@
 
 mod database;
 mod cli;
+pub mod utils;
 
 use std::{ops::RangeInclusive, rc::Rc};
 
@@ -8,7 +9,9 @@ use clap::Parser;
 use cli::Cli;
 use faker_rand::en_us::names::{LastName, FirstName};
 use rand::Rng;
-use chrono::{DateTime, Datelike, Utc};
+use chrono::{Datelike, Utc};
+use sea_orm::ConnectOptions;
+use utils::shuffle;
 
 
 const RATING_RANGE: RangeInclusive<u16> = 1000..=2900;
@@ -16,14 +19,21 @@ const RATING_RANGE: RangeInclusive<u16> = 1000..=2900;
 #[tokio::main]
 async fn main() {
 
-    let cli = Cli::parse();
+    let Cli {database, log_lvl, mode } = Cli::parse();
 
-    // database::connect().await.ok();
+    println!("{:?}", log_lvl);
+
+    let mut options = ConnectOptions::new(database);
+    options.min_connections(5).sqlx_logging(true).sqlx_logging_level(log::LevelFilter::Info);
+
+    database::connect(options).await.ok();
+    
+
     let players: Rc<Vec<_>> = Rc::new((0..10).map(|i| Player::rand(i)).collect::<Vec<_>>());
     
     let date = Utc::now();
     
-    let tournament = Tournament {
+    let _tournament = Tournament {
         max_participants_num: players.len() as u32,
         month: date.month(),
         year: date.year(),
@@ -40,15 +50,6 @@ async fn main() {
     // dbg!("{:?}", Result::Win.value());
 }
 
-
-/// Fisher–Yates shuffle
-fn shuffle<T>(vec: Vec<T>) -> Vec<T> {
-    let mut result = vec;
-    for i in (1..result.len()-1).rev() {
-        result.swap(rand::thread_rng().gen_range(0..i), i);
-    }
-    result.into()
-}
 
 struct Tour {
     start_time: Utc,
